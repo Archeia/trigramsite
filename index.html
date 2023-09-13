@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Timeline Conversation</title>
+    <script src="html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: black;
+        }
+        #dialogue-box {
+            background-color: inherit;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 20px;
+        }
+        .avatar {
+            border-radius: 50%;
+        }
+        .dialogue {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 20px;
+        }
+        .dialogue-text {
+            margin-left: 10px;
+            white-space: pre-line; word-wrap: break-word;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        textarea {
+            resize: vertical;
+            width: 100%;
+            height: 50px;
+        }
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body id="body">
+    <div class="container">
+        <div class="form-container">
+            <label for="bg">Background Image: </label><input type="file" id="bg" accept="image/*"><br>
+            <label for="bgColor">Background Color: </label><input type="color" id="bgColor" value="#000000"><br>
+            <label for="hexColor">Or Hex Code: </label><input type="text" id="hexColor" placeholder="#000000"><br><br>
+            <label for="avatarSize">Avatar Size: </label>
+            <select id="avatarSize">
+                <option value="50">Small</option>
+                <option value="100">Medium</option>
+                <option value="150">Large</option>
+            </select><br><br>
+            
+            <div id="dialogueForms">
+                <!-- Dynamic dialogue forms will be inserted here -->
+            </div>
+            
+            <button onclick="addDialogueForm()">Add Dialogue</button><button onclick="deleteDialogueForm()">Delete Dialogue</button>
+            <button onclick="updateAllDialogues()">Update All Dialogues</button>
+        </div>
+        <div id="dialogue-box">
+            <!-- Dialogue will be inserted here -->
+        </div>
+        <button onclick="exportAsPNG()">Export as PNG</button>
+    </div>
+    <script>
+function deleteDialogueForm() {
+    if (dialogueCount > 0) {
+        const dialogueForms = document.getElementById("dialogueForms");
+        const lastForm = document.getElementById("dialogueForm" + dialogueCount);
+        if (lastForm !== null) {
+            dialogueForms.removeChild(lastForm);
+        }
+        dialogueCount--;
+    }
+}
+
+let dialogueCount = 0;
+       
+function addDialogueForm() {
+    dialogueCount++;
+    const dialogueForms = document.getElementById("dialogueForms");
+    const newForm = document.createElement('div');
+        newForm.id = "dialogueForm" + dialogueCount;
+    newForm.innerHTML = `
+        <h3>Dialogue ${dialogueCount}</h3>
+        <label for="character${dialogueCount}">Character: </label>
+        <select id="character${dialogueCount}">
+            <option value="Es">Es</option>
+            <option value="Triplets">Triplets</option>
+            <option value="Liza">Liza</option>
+            <option value="Gyou">Gyou Tachibana</option>
+            <option value="Tamae">Tamae Shiyori</option>
+            <option value="Ritsu">Ritsu Nakajima</option>
+            <option value="Seo-Jun">Seo-Jun Yun</option>
+            <option value="Thea">Thea Argo</option>
+            <option value="Seiko">Seiko Soma</option>
+            <option value="Echo">Echo Imai</option>
+            <option value="Feika">Feika Mahoru</option>
+            <option value="Kira">Kira</option>
+            <option value="Hiromi">Hiromi Seta</option>
+            <option value="Barbara">Barbara Utsugi</option>
+            <option value="Kiara">Kiara Tashiro</option>
+            <option value="Emlyn">Emlyn Domus</option>
+            <option value="Hanako">Hanako Shikafuji</option>
+        </select><br>
+        <label for="dialogue${dialogueCount}">Dialogue: </label><textarea id="dialogue${dialogueCount}"></textarea><br><br>
+    `;
+    dialogueForms.appendChild(newForm);
+}
+        
+
+        
+function updateAllDialogues() {
+    const dialogueBox = document.getElementById("dialogue-box");
+    dialogueBox.innerHTML = "";
+
+    for (let i = 1; i <= dialogueCount; i++) {
+        const avatarSize = document.getElementById("avatarSize").value;
+        const character = document.getElementById("character" + i).value;
+        const dialogue = document.getElementById("dialogue" + i).value;
+
+        const avatarURL = 'avatars/' + character + '.png';
+        const name = character.split(' ')[0];
+
+        const newDialogue = document.createElement('div');
+        newDialogue.innerHTML = `
+            <div class="dialogue">
+                <img crossorigin="null" src="${avatarURL}" alt="${name}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
+                <div class="dialogue-text"><span class="bold">${name}:</span> ${dialogue}</div>
+            </div>
+        `;
+        dialogueBox.appendChild(newDialogue);
+    }
+}
+
+            const dialogueBox = document.getElementById("dialogue-box");
+            dialogueBox.innerHTML = "";
+
+            for (let i = 1; i <= dialogueCount; i++) {
+                const avatarSize = document.getElementById("avatarSize").value;
+                const avatar = document.getElementById("avatar" + i).files[0];
+                const name = document.getElementById("name" + i).value;
+                const dialogue = document.getElementById("dialogue" + i).value;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarURL = e.target.result;
+                    const newDialogue = document.createElement('div');
+                    newDialogue.innerHTML = `
+                        <div class="dialogue">
+                            <img crossorigin="null" src="${avatarURL}" alt="${name}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
+                            <div class="dialogue-text"><span class="bold">${name}:</span> ${dialogue}</div>
+                        </div>
+                    `;
+                    dialogueBox.appendChild(newDialogue);
+                };
+                reader.readAsDataURL(avatar);
+            }
+        
+
+        document.getElementById("bg").addEventListener("change", function() {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("body").style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById("bgColor").addEventListener("input", function() {
+            document.getElementById("body").style.backgroundColor = this.value;
+        });
+
+        document.getElementById("hexColor").addEventListener("input", function() {
+            document.getElementById("body").style.backgroundColor = this.value;
+        });
+
+        function exportAsPNG() { console.log("exportAsPNG triggered");
+            const bgColor = getComputedStyle(document.body).backgroundColor;
+            html2canvas(document.querySelector("#dialogue-box"), { backgroundColor: bgColor }).then(canvas => { console.log("html2canvas successful");
+                let link = document.createElement('a');
+                link.download = 'dialogue.png';
+                link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");;
+                link.click(); console.log("Image exported");
+            });
+        }
+    </script>
+</body>
+</html>
