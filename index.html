@@ -15,7 +15,7 @@
         #dialogue-box {
             background-color: inherit;
         }
-        .container {
+        .container {    
             background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 20px;
@@ -131,7 +131,7 @@ function updateAllDialogues() {
         const character = document.getElementById("character" + i).value;
         const dialogue = document.getElementById("dialogue" + i).value;
 
-        const avatarURL = '/assets/images/' + character + '.png';
+        const avatarURL = '/assets/images/' + character + '.PNG';
         const name = character.split(' ')[0];
 
         const newDialogue = document.createElement('div');
