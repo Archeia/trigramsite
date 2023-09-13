@@ -9,7 +9,7 @@
     <style>
         body {
     font-family: Arial, sans-serif;
-    background-color: transparent;
+    background-color: black;
     color: black;
     display: flex;
     justify-content: center;
@@ -20,7 +20,7 @@
             background-color: inherit;
         }
         .container {
-    background-color: transparent;  
+    background-color: rgba(255, 255, 255, 0.8);
     padding: 20px;
     margin: auto;
     width: 50%;
@@ -51,7 +51,17 @@
             width: 100%;
             height: 50px;
         }
-    </style>
+    
+#dialogue-preview {
+    position: fixed;
+    top: 0;
+    left: 25%;  /* Centered, considering the width is 50% */
+    width: 50%;
+    z-index: 9999;
+    background-color: transparent;
+}
+
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body id="body">
@@ -74,9 +84,9 @@
             <button onclick="addDialogueForm()">Add Dialogue</button><button onclick="deleteDialogueForm()">Delete Dialogue</button>
             <button onclick="updateAllDialogues()">Update All Dialogues</button>
         </div>
-        <div id="dialogue-box">
+        <div id="dialogue-preview"><div id="dialogue-box">
             <!-- Dialogue will be inserted here -->
-        </div>
+        </div></div>
         <button onclick="exportAsPNG()">Export as PNG</button>
     </div>
     <script>
@@ -204,6 +214,26 @@ function updateAllDialogues() {
                 link.click(); console.log("Image exported");
             });
         }
-    </script>
+    
+// Function to capitalize the first letter of each word in a string
+function capitalizeFirstLetter(string) {
+    return string.replace(/\w/g, function(letter) {
+        return letter.toUpperCase();
+    });
+}
+
+// Assuming dialogues are updated in an element with an ID like "dialogue-box"
+// Add event listener to capitalize names whenever the dialogue updates
+document.addEventListener('DOMContentLoaded', function() {
+    var dialogueBox = document.getElementById("dialogue-box");
+    if (dialogueBox) {
+        dialogueBox.addEventListener('input', function() {
+            // Capitalize the first letter of each name (assuming names are separate words)
+            dialogueBox.innerHTML = capitalizeFirstLetter(dialogueBox.innerHTML);
+        });
+    }
+});
+
+</script>
 </body>
 </html>
