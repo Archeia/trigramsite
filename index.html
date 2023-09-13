@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Timeline Conversation</title>
-    <script src="/assets/html2canvas.min.js"></script>
+    <script src="./docs/assets/html2canvas.min.js"></script>
     
     <style>
         body {
@@ -131,7 +131,7 @@ function updateAllDialogues() {
         const character = document.getElementById("character" + i).value;
         const dialogue = document.getElementById("dialogue" + i).value;
 
-        const avatarURL = '/assets/images/' + character + '.png';
+        const avatarURL = './docs/assets/images/' + character + '.png';
         const name = character.split(' ')[0];
 
         const newDialogue = document.createElement('div');
