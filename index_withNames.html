@@ -145,8 +145,8 @@ function updateAllDialogues() {
         const newDialogue = document.createElement('div');
         newDialogue.innerHTML = `
             <div class="dialogue">
-                <img crossorigin="null" src="${avatarURL}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
-                <div class="dialogue-text">${dialogue}</div>
+                <img crossorigin="null" src="${avatarURL}" alt="${name}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
+                <div class="dialogue-text"><span class="bold">${name}:</span> ${dialogue}</div>
             </div>
         `;
         dialogueBox.appendChild(newDialogue);
@@ -168,8 +168,8 @@ function updateAllDialogues() {
                     const newDialogue = document.createElement('div');
                     newDialogue.innerHTML = `
                         <div class="dialogue">
-                            <img crossorigin="null" src="${avatarURL}"class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
-                            <div class="dialogue-text">${dialogue}</div>
+                            <img crossorigin="null" src="${avatarURL}" alt="${name}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
+                            <div class="dialogue-text"><span class="bold">${name}:</span> ${dialogue}</div>
                         </div>
                     `;
                     dialogueBox.appendChild(newDialogue);
