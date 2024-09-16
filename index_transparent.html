@@ -33,7 +33,6 @@
         }
         .avatar {
             border-radius: 50%;
-            flex-shrink: 0;
         }
         .dialogue {
             display: flex;
@@ -42,20 +41,11 @@
             padding: 10px;
             background-color: #f1f1f1;
             border-radius: 20px;
-            max-width: 100%;
-        }
-        .dialogue-content {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            margin-left: 10px;
-            overflow-wrap: break-word;
-            word-wrap: break-word;
-            word-break: break-word;
-            hyphens: auto;
         }
         .dialogue-text {
-            white-space: pre-wrap;
+            margin-left: 10px;
+            white-space: pre-line;
+            word-wrap: break-word;
         }
         .bold {
             font-weight: bold;
@@ -176,9 +166,7 @@
             newDialogue.innerHTML = `
                 <div class="dialogue">
                     <img crossorigin="null" src="${avatarURL}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
-                    <div class="dialogue-content">
-                        <div class="dialogue-text">${dialogue}</div>
-                    </div>
+                    <div class="dialogue-text">${dialogue}</div>
                 </div>
             `;
             dialogueBox.appendChild(newDialogue);
