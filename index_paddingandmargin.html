@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Timeline Conversation</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: transparent;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #dialogue-box {
+            background-color: inherit;
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        .container {
+            background-color: transparent;  
+            padding: 20px;
+            margin: auto;
+            width: 100%;
+            max-width: 800px;
+        }
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        .avatar {
+            border-radius: 50%;
+        }
+        .dialogue {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .dialogue-content {
+            display: flex;
+            flex-grow: 1;
+        }
+        .dialogue-text {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            overflow: auto;
+            flex-grow: 1;
+            padding-left: 10px;
+        }
+        .dialogue-date {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        textarea {
+            resize: vertical;
+            width: 100%;
+            height: 50px;
+        }
+        #canvas-container {
+            position: relative;
+            margin-top: 20px;
+        }
+        #output-canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body id="body">
+    <div class="container">
+        <div class="form-container">
+            <label for="bg">Background Image: </label><input type="file" id="bg" accept="image/*"><br>
+            <label for="bgColor">Background Color: </label><input type="color" id="bgColor" value="#000000"><br>
+            <label for="hexColor">Or Hex Code: </label><input type="text" id="hexColor" placeholder="#000000"><br><br>
+            <label for="avatarSize">Avatar Size: </label>
+            <select id="avatarSize">
+                <option value="50">Small</option>
+                <option value="100">Medium</option>
+                <option value="150">Large</option>
+            </select><br><br>
+            <label for="bubbleSize">Bubble Size: </label>
+            <select id="bubbleSize">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+            </select><br><br>
+            <label for="verticalAlign">Vertical Alignment: </label>
+            <select id="verticalAlign">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
+            </select><br><br>
+            <label for="canvasWidth">Canvas Width: </label><input type="number" id="canvasWidth" value="800"><br>
+            <label for="canvasHeight">Canvas Height: </label><input type="number" id="canvasHeight" value="600"><br><br>
+            <label for="transparentBg">Transparent Background: </label><input type="checkbox" id="transparentBg"><br><br>
+            
+            <div id="dialogueForms">
+                <!-- Dynamic dialogue forms will be inserted here -->
+            </div>
+            
+            <button onclick="addDialogueForm()">Add Dialogue</button>
+            <button onclick="deleteDialogueForm()">Delete Dialogue</button>
+            <button onclick="updateAllDialogues()">Update All Dialogues</button>
+        </div>
+        <div id="canvas-container">
+            <canvas id="output-canvas"></canvas>
+            <div id="dialogue-box">
+                <!-- Dialogue will be inserted here -->
+            </div>
+        </div>
+        <button onclick="exportAsPNG()">Export as PNG</button>
+    </div>
+    <script>
+    let dialogueCount = 0;
+    let avatars = {};
+
+    function deleteDialogueForm() {
+        if (dialogueCount > 0) {
+            const dialogueForms = document.getElementById("dialogueForms");
+            const lastForm = document.getElementById("dialogueForm" + dialogueCount);
+            if (lastForm !== null) {
+                dialogueForms.removeChild(lastForm);
+            }
+            dialogueCount--;
+            updateAllDialogues();
+        }
+    }
+    
+    function addDialogueForm() {
+        dialogueCount++;
+        const dialogueForms = document.getElementById("dialogueForms");
+        const newForm = document.createElement('div');
+        newForm.id = "dialogueForm" + dialogueCount;
+        newForm.innerHTML = `
+            <h3>Dialogue ${dialogueCount}</h3>
+            <label for="character${dialogueCount}">Character: </label>
+            <select id="character${dialogueCount}" onchange="preloadAvatar(${dialogueCount})">
+                <option value="Es">Es</option>
+                <option value="Triplets">Triplets</option>
+                <option value="Corpus">Corpus</option>
+                <option value="Phren">Phren</option>
+                <option value="Ardor">Ardor</option>
+                <option value="Liza">Liza</option>
+                <option value="Gyou">Gyou Tachibana</option>
+                <option value="Tamae">Tamae Shiyori</option>
+                <option value="Ritsu">Ritsu Nakajima</option>
+                <option value="Seo-jun">Seo-Jun Yun</option>
+                <option value="Thea">Thea Argo</option>
+                <option value="Seiko">Seiko Soma</option>
+                <option value="Echo">Echo Imai</option>
+                <option value="Feika">Feika Mahoru</option>
+                <option value="Kira">Kira</option>
+                <option value="Hiromi">Hiromi Seta</option>
+                <option value="Barbara">Barbara Utsugi</option>
+                <option value="Kiara">Kiara Tashiro</option>
+                <option value="Emlyn">Emlyn Domus</option>
+                <option value="Hanako">Hanako Shikafuji</option>
+            </select><br>
+            <label for="dialogue${dialogueCount}">Dialogue: </label><textarea id="dialogue${dialogueCount}"></textarea><br>
+            <label for="dateTime${dialogueCount}">Date and Time: </label><input type="datetime-local" id="dateTime${dialogueCount}"><br><br>
+        `;
+        dialogueForms.appendChild(newForm);
+        preloadAvatar(dialogueCount);
+        updateAllDialogues();
+    }
+    
+    function preloadAvatar(index) {
+        const character = document.getElementById("character" + index).value;
+        const avatarURL = `./docs/assets/images/${character}.png`;
+        if (!avatars[character]) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                avatars[character] = canvas.toDataURL();
+                updateAllDialogues();
+            };
+            img.src = avatarURL;
+        }
+    }
+    
+    function updateAllDialogues() {
+        const dialogueBox = document.getElementById("dialogue-box");
+        dialogueBox.innerHTML = "";
+        const maxWidth = dialogueBox.offsetWidth - 40; // Subtract padding
+
+        const bubbleSize = document.getElementById("bubbleSize").value;
+        const bubbleDimensions = getBubbleDimensions(bubbleSize);
+        const verticalAlign = document.getElementById("verticalAlign").value;
+
+        for (let i = 1; i <= dialogueCount; i++) {
+            const avatarSize = document.getElementById("avatarSize").value;
+            const character = document.getElementById("character" + i).value;
+            const dialogue = document.getElementById("dialogue" + i).value;
+            const dateTime = document.getElementById("dateTime" + i).value;
+
+            const avatarURL = avatars[character] || `./docs/assets/images/${character}.png`;
+
+            const newDialogue = document.createElement('div');
+            newDialogue.className = 'dialogue';
+            newDialogue.style.width = bubbleDimensions.width + 'px';
+            newDialogue.innerHTML = `
+                <div class="dialogue-date">${dateTime}</div>
+                <div class="dialogue-content" style="height:${bubbleDimensions.height}px;">
+                    <div class="avatar-container" style="width:${avatarSize}px;">
+                        <img src="${avatarURL}" class="avatar" style="width:${avatarSize}px;height:${avatarSize}px;">
+                    </div>
+                    <div class="dialogue-text">${dialogue}</div>
+                </div>
+            `;
+            dialogueBox.appendChild(newDialogue);
+
+            const dialogueContent = newDialogue.querySelector('.dialogue-content');
+            const dialogueText = newDialogue.querySelector('.dialogue-text');
+            dialogueText.style.width = (bubbleDimensions.width - parseInt(avatarSize) - 45) + 'px';
+
+            // Apply vertical alignment
+            switch (verticalAlign) {
+                case 'top':
+                    dialogueContent.style.alignItems = 'flex-start';
+                    break;
+                case 'middle':
+                    dialogueContent.style.alignItems = 'center';
+                    break;
+                case 'bottom':
+                    dialogueContent.style.alignItems = 'flex-end';
+                    break;
+            }
+        }
+        updateCanvas();
+    }
+    
+    function getBubbleDimensions(size) {
+        switch(size) {
+            case 'small':
+                return { width: 300, height: 100 };
+            case 'medium':
+                return { width: 400, height: 150 };
+            case 'large':
+                return { width: 500, height: 200 };
+            default:
+                return { width: 400, height: 150 };
+        }
+    }
+    
+    document.getElementById("bg").addEventListener("change", function() {
+        const file = this.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById("body").style.backgroundImage = `url(${e.target.result})`;
+            updateCanvas();
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    document.getElementById("bgColor").addEventListener("input", function() {
+        document.getElementById("body").style.backgroundColor = this.value;
+        updateCanvas();
+    });
+    
+    document.getElementById("hexColor").addEventListener("input", function() {
+        document.getElementById("body").style.backgroundColor = this.value;
+        updateCanvas();
+    });
+    
+    document.getElementById("canvasWidth").addEventListener("input", updateCanvas);
+    document.getElementById("canvasHeight").addEventListener("input", updateCanvas);
+    document.getElementById("transparentBg").addEventListener("change", updateCanvas);
+    document.getElementById("bubbleSize").addEventListener("change", updateAllDialogues);
+    document.getElementById("verticalAlign").addEventListener("change", updateAllDialogues);
+    
+    function updateCanvas() {
+        const canvas = document.getElementById("output-canvas");
+        const ctx = canvas.getContext("2d");
+        const width = parseInt(document.getElementById("canvasWidth").value);
+        const height = parseInt(document.getElementById("canvasHeight").value);
+        const transparentBg = document.getElementById("transparentBg").checked;
+    
+        canvas.width = width;
+        canvas.height = height;
+    
+        if (!transparentBg) {
+            // Set background
+            ctx.fillStyle = document.getElementById("body").style.backgroundColor || "#FFFFFF";
+            ctx.fillRect(0, 0, width, height);
+    
+            // Draw background image if exists
+            const bgImage = new Image();
+            bgImage.onload = function() {
+                ctx.drawImage(bgImage, 0, 0, width, height);
+                drawDialogues();
+            };
+            const bodyBgImage = getComputedStyle(document.body).backgroundImage;
+            if (bodyBgImage !== "none") {
+                bgImage.src = bodyBgImage.slice(4, -1).replace(/"/g, "");
+            } else {
+                drawDialogues();
+            }
+        } else {
+            // Clear the canvas for transparent background
+            ctx.clearRect(0, 0, width, height);
+            drawDialogues();
+        }
+    }
+    
+    function drawDialogues() {
+        const canvas = document.getElementById("output-canvas");
+        const dialogueBox = document.getElementById("dialogue-box");
+        
+        html2canvas(dialogueBox, { 
+            canvas: canvas,
+            backgroundColor: null,
+            scale: 1,
+            width: canvas.width,
+            height: canvas.height,
+            useCORS: true
+        }).then(function(canvas) {
+            console.log("Canvas updated");
+        });
+    }
+    
+    function exportAsPNG() {
+        const dialogueBox = document.getElementById("dialogue-box");
+        html2canvas(dialogueBox, {
+            backgroundColor: document.getElementById("transparentBg").checked ? null : document.getElementById("body").style.backgroundColor || "#FFFFFF",
+            useCORS: true
+        }).then(function(canvas) {
+            let link = document.createElement('a');
+            link.download = 'dialogue.png';
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            console.log("Image exported");
+        });
+    }
+    
+    // Initialize with one dialogue form
+    addDialogueForm();
+    </script>
+</body>
+</html>
