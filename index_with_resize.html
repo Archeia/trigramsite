@@ -82,7 +82,6 @@
             </select><br><br>
             <label for="canvasWidth">Canvas Width: </label><input type="number" id="canvasWidth" value="800"><br>
             <label for="canvasHeight">Canvas Height: </label><input type="number" id="canvasHeight" value="600"><br><br>
-            <label for="transparentBg">Transparent Background: </label><input type="checkbox" id="transparentBg"><br><br>
             
             <div id="dialogueForms">
                 <!-- Dynamic dialogue forms will be inserted here -->
@@ -196,38 +195,30 @@
     
     document.getElementById("canvasWidth").addEventListener("input", updateCanvas);
     document.getElementById("canvasHeight").addEventListener("input", updateCanvas);
-    document.getElementById("transparentBg").addEventListener("change", updateCanvas);
     
     function updateCanvas() {
         const canvas = document.getElementById("output-canvas");
         const ctx = canvas.getContext("2d");
         const width = parseInt(document.getElementById("canvasWidth").value);
         const height = parseInt(document.getElementById("canvasHeight").value);
-        const transparentBg = document.getElementById("transparentBg").checked;
     
         canvas.width = width;
         canvas.height = height;
     
-        if (!transparentBg) {
-            // Set background
-            ctx.fillStyle = document.getElementById("body").style.backgroundColor || "#FFFFFF";
-            ctx.fillRect(0, 0, width, height);
+        // Set background
+        ctx.fillStyle = document.getElementById("body").style.backgroundColor || "#FFFFFF";
+        ctx.fillRect(0, 0, width, height);
     
-            // Draw background image if exists
-            const bgImage = new Image();
-            bgImage.onload = function() {
-                ctx.drawImage(bgImage, 0, 0, width, height);
-                drawDialogues();
-            };
-            const bodyBgImage = getComputedStyle(document.body).backgroundImage;
-            if (bodyBgImage !== "none") {
-                bgImage.src = bodyBgImage.slice(4, -1).replace(/"/g, "");
-            } else {
-                drawDialogues();
-            }
+        // Draw background image if exists
+        const bgImage = new Image();
+        bgImage.onload = function() {
+            ctx.drawImage(bgImage, 0, 0, width, height);
+            drawDialogues();
+        };
+        const bodyBgImage = getComputedStyle(document.body).backgroundImage;
+        if (bodyBgImage !== "none") {
+            bgImage.src = bodyBgImage.slice(4, -1).replace(/"/g, "");
         } else {
-            // Clear the canvas for transparent background
-            ctx.clearRect(0, 0, width, height);
             drawDialogues();
         }
     }
@@ -251,7 +242,7 @@
         const canvas = document.getElementById("output-canvas");
         let link = document.createElement('a');
         link.download = 'dialogue.png';
-        link.href = canvas.toDataURL("image/png");
+        link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
         link.click();
         console.log("Image exported");
     }
