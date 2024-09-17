@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App Simulator</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            background-color: #075e54;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .chat-messages {
+            height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            clear: both;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message-left {
+            float: left;
+        }
+        .message-right {
+            float: right;
+            flex-direction: row-reverse;
+        }
+        .message-content {
+            padding: 8px 12px;
+            border-radius: 18px;
+            position: relative;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+        .message-left .message-content {
+            background-color: #f0f0f0;
+            margin-left: 10px;
+        }
+        .message-right .message-content {
+            background-color: #dcf8c6;
+            margin-right: 10px;
+        }
+        .message-info {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 2px;
+        }
+        .avatar-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #075e54;
+        }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .username {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .controls {
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        #exportButton {
+            background-color: #075e54;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-header">Chat App Simulator</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="controls">
+            <input type="text" id="usernameInput" placeholder="Username">
+            <select id="avatarSelect">
+                <option value="">Select Avatar</option>
+                <!-- Avatar options will be populated dynamically -->
+            </select>
+            <input type="text" id="messageInput" placeholder="Type a message">
+            <input type="datetime-local" id="dateTimeInput">
+            <select id="alignmentSelect">
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+            </select>
+            <button onclick="addMessage()">Send Message</button>
+            <button onclick="exportAsImage()">Export as Image</button>
+        </div>
+    </div>
+
+    <script>
+        // Simulated avatar folder contents
+        const avatarFolder = [
+            'Kira.png',
+            'Ritsu.png',
+            'Tamae.png'
+        ];
+
+        // Populate avatar dropdown
+        const avatarSelect = document.getElementById('avatarSelect');
+        avatarFolder.forEach(avatar => {
+            const option = document.createElement('option');
+            option.value = avatar;
+            option.textContent = avatar;
+            avatarSelect.appendChild(option);
+        });
+
+        function addMessage() {
+            const username = document.getElementById('usernameInput').value;
+            const avatarFile = document.getElementById('avatarSelect').value;
+            const avatarUrl = avatarFile ? `./avatarfolder/${avatarFile}` : 'https://via.placeholder.com/40';
+            const message = document.getElementById('messageInput').value;
+            const dateTime = document.getElementById('dateTimeInput').value;
+            const alignment = document.getElementById('alignmentSelect').value;
+
+            if (!message) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${alignment}`;
+
+            const formattedDateTime = dateTime ? new Date(dateTime).toLocaleString() : new Date().toLocaleString();
+
+            messageDiv.innerHTML = `
+                <div class="avatar-container">
+                    <img src="${avatarUrl}" alt="${username}" class="avatar">
+                </div>
+                <div>
+                    <div class="username">${username}</div>
+                    <div class="message-content">${message}</div>
+                    <div class="message-info">${formattedDateTime}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Clear inputs
+            document.getElementById('messageInput').value = '';
+            document.getElementById('dateTimeInput').value = '';
+        }
+
+        function exportAsImage() {
+            html2canvas(document.querySelector(".container")).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'chat_screenshot.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
